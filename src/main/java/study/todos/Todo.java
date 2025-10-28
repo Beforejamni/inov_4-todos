@@ -1,9 +1,17 @@
 package study.todos;
 
-import java.time.Clock;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
 import java.time.LocalDateTime;
 
+@Entity
 public class Todo {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long todoId;
 
     private String userName;
@@ -19,16 +27,18 @@ public class Todo {
 
     public Todo() {}
 
-    public Todo (String userName, String title, String content, Clock clock) {
+    public Todo (String userName, String title, String content) {
         this.userName = userName;
         this.title = title;
         this.content = content;
-        this.createdAt = LocalDateTime.now(clock);
-        this.updatedAt = LocalDateTime.now(clock);
     }
 
-    public static Todo createTodo(String userName, String title, String content, Clock clock) {
-        return new Todo(userName, title, content, clock);
+    public static Todo createTodo(String userName, String title, String content) {
+        return new Todo(userName, title, content);
+    }
+
+    public Long getTodoId() {
+        return todoId;
     }
 
     public String getUserName() {
