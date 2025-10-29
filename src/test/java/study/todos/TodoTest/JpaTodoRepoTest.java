@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.transaction.annotation.Transactional;
 import study.todos.Todo;
-import study.todos.repository.JpaTodoRepository;
+import study.todos.repository.TodoRepository;
 
 import java.util.Optional;
 
@@ -17,7 +17,7 @@ import java.util.Optional;
 public class JpaTodoRepoTest {
 
     @Autowired
-    private JpaTodoRepository jpaTodoRepository;
+    private TodoRepository todoRepository;
 
     @Test
     @DisplayName("Todo 저장")
@@ -25,12 +25,12 @@ public class JpaTodoRepoTest {
 
         Todo todo = Todo.createTodo("jamni", "제목", "내용");
 
-        Todo saveTodo = jpaTodoRepository.save(todo);
+        Todo saveTodo = todoRepository.save(todo);
 
         Assertions.assertThat(saveTodo).isNotNull();
         Assertions.assertThat(saveTodo.getTodoId()).isNotNull();
 
-        Optional<Todo> OpTodo = jpaTodoRepository.findByTodoId(saveTodo.getTodoId());
+        Optional<Todo> OpTodo = todoRepository.findByTodoId(saveTodo.getTodoId());
 
         Assertions.assertThat(OpTodo).isPresent();
 
