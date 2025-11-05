@@ -7,4 +7,6 @@ import study.todos.domain.todo.dto.SimpleTodoRes;
 public interface TodoService {
 
     SimpleTodoRes saveTodo(SimpleTodoReq req);
+
+    SimpleTodoRes findTodo(Long id);
 }

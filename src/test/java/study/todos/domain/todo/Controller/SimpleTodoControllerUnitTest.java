@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -13,12 +14,17 @@ import org.springframework.http.ResponseEntity;
 import study.todos.domain.todo.controller.SimpleTodoController;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
+import study.todos.domain.todo.exception.TodoErrorCode;
+import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.service.TodoService;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class SimpleTodoControllerUnitTest {
@@ -49,4 +55,35 @@ public class SimpleTodoControllerUnitTest {
         //메서드 호출 여부 확인
         Mockito.verify(todoService).saveTodo(req);
     }
+
+    @Test
+    @DisplayName("Todo_조회_성공")
+    void findTodo() {
+
+        Clock fixed = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+        LocalDateTime now = LocalDateTime.now(fixed);
+        SimpleTodoRes res = new SimpleTodoRes("jamni", "title", "contents", now, now);
+
+        BDDMockito.given(todoService.findTodo(1L)).willReturn(res);
+
+        ResponseEntity<SimpleTodoRes> foundTodo = todoController.findTodo(1L);
+
+        Assertions.assertThat(foundTodo.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(foundTodo.getBody().userName()).isEqualTo("jamni");
+        Assertions.assertThat(foundTodo.getBody().title()).isEqualTo("title");
+        Assertions.assertThat(foundTodo.getBody().content()).isEqualTo("contents");
+
+    }
+
+    @Test
+    @DisplayName("Todo_조회_실패")
+    void findTodo_실패() {
+        BDDMockito.given(todoService.findTodo(any(Long.class))).willThrow(new TodoException(TodoErrorCode.NOT_FOUND));
+
+        assertThrows(TodoException.class, () -> todoController.findTodo(1L));
+
+        BDDMockito.then(todoService).should().findTodo(1L);
+        BDDMockito.then(todoService).shouldHaveNoMoreInteractions();
+    }
+
 }

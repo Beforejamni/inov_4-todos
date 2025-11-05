@@ -26,16 +26,24 @@ public class Todo {
     private String content;
 
 
-    @CreatedDate //엔티티가 최초로 생성되어 저장될 때 시간이 자동 저장됨
+    @CreatedDate //엔티티가 최초로 생성되어 저장!!될 때 시간이 자동 저장됨
     @Column(name = "create_at")
     private LocalDateTime createdAt;
 
-    @LastModifiedDate //조회한 엔티티의 값을 수정할 때 시간이 자동 저장됨
+    @LastModifiedDate //조회한 엔티티의 값을 수정!!할 때 시간이 자동 저장됨
     @Column(name = "update_at")
     private LocalDateTime updatedAt;
 
 
     public Todo() {}
+
+    public Todo(String userName, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt){
+        this.userName = userName;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     public Todo (String userName, String title, String content) {
         this.userName = userName;
