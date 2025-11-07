@@ -14,6 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,9 +36,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
+import java.util.stream.IntStream;
 
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -67,6 +75,8 @@ public class SimpleTodoControllerTest {
                 .standaloneSetup(todoController)
                 //GlobalHandler 등록
                 .setControllerAdvice(new GlobalExceptionHandler())
+                //테스트 환경에서 PageableHandlerMethodArgumentResolver가 없어 추가해준다.
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(new ObjectMapper()
                         .registerModule(new JavaTimeModule())))
                 .build();
@@ -141,5 +151,40 @@ public class SimpleTodoControllerTest {
         verify(todoService).findTodo(any(Long.class));
         //어떠한 상호작용도 없음을 검증
         verifyNoMoreInteractions(todoService);
+    }
+
+    @Test
+    @DisplayName("Todo_전체_조회_성공")
+    void findTodos_성공() throws Exception {
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "title"));
+
+        List<SimpleTodoRes> responses = IntStream.rangeClosed(1, 10)
+                .mapToObj(i -> new SimpleTodoRes("jamni", "title" + i, "contents", null, null))
+                .toList();
+
+        PageImpl<SimpleTodoRes> responsePage = new PageImpl<>(responses, pageable, 12);
+
+        Mockito.when(todoService.findTodos(
+                argThat( p ->
+                        p.getPageNumber() == 0 && p.getPageSize() == 10
+                ))).thenReturn(responsePage);
+
+        mockMvc.perform(get("/todos")
+                .param("page", "0")
+                .param("size", "10")
+                .param("sort", "title,asc")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content.length()").value(10))
+                .andExpect(jsonPath("$.totalElements").value(12))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.number").value(0))
+                .andExpect(jsonPath("$.totalPages").value(2))
+                .andExpect(jsonPath("$.content[0].title").value("title1"))
+                .andExpect(jsonPath("$.content[9].title").value("title10"));
+
     }
 }

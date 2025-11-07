@@ -9,11 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import study.todos.domain.todo.controller.SimpleTodoController;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
+import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.service.TodoService;
@@ -22,6 +24,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,6 +89,35 @@ public class SimpleTodoControllerUnitTest {
 
         BDDMockito.then(todoService).should().findTodo(1L);
         BDDMockito.then(todoService).shouldHaveNoMoreInteractions();
+    }
+
+    @Test
+    @DisplayName("Todo_전체_조회_성공")
+    void findTodos_성공(){
+        int page = 0;
+        int size = 10;
+        Pageable pageable = PageRequest.of(page, size , Sort.by(Sort.Direction.ASC, "todoId"));
+
+
+        List<SimpleTodoRes> todos = IntStream.rangeClosed(1, 12).mapToObj(i -> new SimpleTodoRes("jamni", "" + i, "contents", null, null))
+                .limit(size)
+                .toList();
+
+        PageImpl<SimpleTodoRes> simpleTodoRes = new PageImpl<>(todos, pageable, 12);
+
+        BDDMockito.given(todoService.findTodos(pageable)).willReturn(simpleTodoRes);
+
+        ResponseEntity<Page<SimpleTodoRes>> response = todoController.findTodos(pageable);
+
+        //then
+        BDDMockito.verify(todoService).findTodos(pageable);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody().getNumber()).isEqualTo(0);
+        Assertions.assertThat(response.getBody().getSize()).isEqualTo(10);
+        Assertions.assertThat(response.getBody().getTotalElements()).isEqualTo(12);
+        Assertions.assertThat(response.getBody().hasNext()).isTrue();
+        Assertions.assertThat(response.getBody().getContent().get(0).title()).isEqualTo("1");
+
     }
 
 }
