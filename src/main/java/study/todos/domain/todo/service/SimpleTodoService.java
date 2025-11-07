@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
+import study.todos.domain.todo.dto.UpdateTodoReq;
 import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
@@ -57,5 +58,16 @@ public class SimpleTodoService implements TodoService{
         return new PageImpl<>( responses, pageable, todos.getTotalElements());
     }
 
+    @Override
+    @Transactional
+    public SimpleTodoRes updateTodo(Long todoId, UpdateTodoReq req){
+
+        Todo foundTodo = jpaTodoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TodoErrorCode.NOT_FOUND));
+
+        foundTodo.updateTodo(req);
+
+        return new SimpleTodoRes(foundTodo.getUserName(), foundTodo.getTitle(), foundTodo.getContent(), foundTodo.getCreatedAt(), foundTodo .getUpdatedAt());
+    }
 
 }

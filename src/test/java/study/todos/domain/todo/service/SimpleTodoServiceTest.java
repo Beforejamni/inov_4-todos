@@ -12,6 +12,7 @@ import org.springframework.data.domain.*;
 import org.springframework.transaction.annotation.Transactional;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
+import study.todos.domain.todo.dto.UpdateTodoReq;
 import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.repository.JpaTodoRepository;
@@ -131,6 +132,64 @@ public class SimpleTodoServiceTest{
         Assertions.assertThat(pageable).isEqualTo(results.getPageable());
     }
 
+    @Test
+    @DisplayName("일정_수정_완료")
+    void updateTodo_성공() {
+
+        //given
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        Todo todo = new Todo("jamni", "title", "contents", dateTime, dateTime);
+
+        given(jpaTodoRepository.findById(1L)).willReturn(Optional.of(todo));
+
+        UpdateTodoReq req = new UpdateTodoReq("updatedTitle", "updated");
+
+        //when
+        SimpleTodoRes simpleTodoRes = simpleTodoService.updateTodo(1L, req);
+
+        //then
+        Assertions.assertThat(simpleTodoRes.title()).isEqualTo("updatedTitle");
+        Assertions.assertThat(simpleTodoRes .content()).isEqualTo("updated");
+
+    }
+
+    @Test
+    @DisplayName("일정_제목_수정_완료")
+    void updateTodoTitle_성공() {
+        //given
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        Todo todo = new Todo("jamni", "title", "contents", dateTime, dateTime);
+
+        given(jpaTodoRepository.findById(1L)).willReturn(Optional.of(todo));
+
+        UpdateTodoReq req = new UpdateTodoReq("updatedTitle", null);
+
+        //when
+        SimpleTodoRes simpleTodoRes = simpleTodoService.updateTodo(1L, req);
+
+        //then
+        Assertions.assertThat(simpleTodoRes.title()).isEqualTo("updatedTitle");
+        Assertions.assertThat(simpleTodoRes .content()).isEqualTo("contents");
+    }
+
+    @Test
+    @DisplayName("일정_내용_수정_완료")
+    void updateTodoContent_성공() {
+        //given
+        LocalDateTime dateTime = LocalDateTime.now().withNano(0);
+        Todo todo = new Todo("jamni", "title", "contents", dateTime, dateTime);
+
+        given(jpaTodoRepository.findById(1L)).willReturn(Optional.of(todo));
+
+        UpdateTodoReq req = new UpdateTodoReq(null , "updated");
+
+        //when
+        SimpleTodoRes simpleTodoRes = simpleTodoService.updateTodo(1L, req);
+
+        //then
+        Assertions.assertThat(simpleTodoRes.title()).isEqualTo("title");
+        Assertions.assertThat(simpleTodoRes .content()).isEqualTo("updated");
+    }
 }
 
 

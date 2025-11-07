@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import study.todos.domain.todo.dto.UpdateTodoReq;
 
 import java.time.LocalDateTime;
 
@@ -53,6 +54,11 @@ public class Todo {
 
     public static Todo createTodo(String userName, String title, String content) {
         return new Todo(userName, title, content);
+    }
+
+    public void updateTodo(UpdateTodoReq req){
+        this.title = (req.title() == null) ? this.title : req.title();
+        this.content = (req.content() == null) ? this.content : req.content();
     }
 
     public Long getTodoId() {
