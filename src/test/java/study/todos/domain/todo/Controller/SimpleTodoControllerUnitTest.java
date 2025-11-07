@@ -12,6 +12,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import study.todos.domain.todo.controller.SimpleTodoController;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
@@ -122,7 +123,7 @@ public class SimpleTodoControllerUnitTest {
     }
 
     @Test
-    @DisplayName("Todo_업데이트")
+    @DisplayName("Todo_업데이트_성공")
     void updateTodo_성공() {
         //given
         UpdateTodoReq req = new UpdateTodoReq(null, "updated");
@@ -139,6 +140,21 @@ public class SimpleTodoControllerUnitTest {
         Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(body.title()).isEqualTo("title");
         Assertions.assertThat(body.content()).isEqualTo("updated");
+    }
 
+    @Test
+    @DisplayName("Todo_업데이트_실패")
+    void updateTodo_실패() {
+
+        UpdateTodoReq req = new UpdateTodoReq("updatedTitle", "updateContents");
+        //given
+        BDDMockito.given(todoService.updateTodo(any(Long.class), any(UpdateTodoReq.class)))
+                .willThrow(new TodoException(TodoErrorCode.NOT_FOUND));
+
+        //when & then
+        TodoException todoException = assertThrows(TodoException.class,
+                () -> todoController.updateTodo(1L, req));
+
+        Assertions.assertThat(todoException.getStatus()).isEqualTo(TodoErrorCode.NOT_FOUND.getStatus());
     }
 }

@@ -2,6 +2,7 @@ package study.todos.domain.todo.Controller;
 
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -192,7 +193,7 @@ public class SimpleTodoControllerTest {
 
     @Test
     @DisplayName("일정_수정_성공")
-    void updateTodo() throws Exception {
+    void updateTodo_성공() throws Exception {
         //given
         UpdateTodoReq req = new UpdateTodoReq("updateTitle", "updateContents");
         SimpleTodoRes result = new SimpleTodoRes("jamni", "updateTitle", "updateContents", null, null);
@@ -206,8 +207,21 @@ public class SimpleTodoControllerTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.title").value("updateTitle"))
                 .andExpect(jsonPath("$.contents").value("updateContents"));
+    }
+
+    @Test
+    @DisplayName("일정_수정_실패")
+    void updateTodo_실패() throws Exception {
+
+        UpdateTodoReq req = new UpdateTodoReq("updateTitle", "updateContents");
+
+        BDDMockito.given(todoService.updateTodo(any(Long.class), any(UpdateTodoReq.class))).willThrow(new TodoException(TodoErrorCode.NOT_FOUND));
 
 
-
+        mockMvc.perform(post("/todos/{todoId}", 1)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(om.writeValueAsString(req)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("일정을 찾을 수 없습니다."));
     }
 }

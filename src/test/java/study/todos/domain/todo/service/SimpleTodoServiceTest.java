@@ -190,6 +190,21 @@ public class SimpleTodoServiceTest{
         Assertions.assertThat(simpleTodoRes.title()).isEqualTo("title");
         Assertions.assertThat(simpleTodoRes .content()).isEqualTo("updated");
     }
+
+    @Test
+    @DisplayName("일정_수정_실패")
+    void updateTodo_실패() {
+
+        //given
+        UpdateTodoReq req = new UpdateTodoReq("updateTitle", "updateContents");
+        given(jpaTodoRepository.findById(1L)).willReturn(Optional.empty());
+
+        //when & then
+        TodoException todoException = assertThrows(TodoException.class, () ->
+                simpleTodoService.updateTodo(1L, req));
+
+
+    }
 }
 
 
