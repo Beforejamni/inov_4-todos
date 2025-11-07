@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import study.todos.domain.todo.controller.SimpleTodoController;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
+import study.todos.domain.todo.dto.UpdateTodoReq;
 import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
@@ -120,4 +121,24 @@ public class SimpleTodoControllerUnitTest {
 
     }
 
+    @Test
+    @DisplayName("Todo_업데이트")
+    void updateTodo_성공() {
+        //given
+        UpdateTodoReq req = new UpdateTodoReq(null, "updated");
+        SimpleTodoRes response = new SimpleTodoRes("jamni", "title", "updated", null, null);
+
+        //하드코딩 금지
+        BDDMockito.given(todoService.updateTodo(any(Long.class),any(UpdateTodoReq.class))).willReturn(response);
+        //when
+
+        ResponseEntity<SimpleTodoRes> responseEntity = todoController.updateTodo(1L, req);
+
+        SimpleTodoRes body = responseEntity.getBody();
+        //then
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(body.title()).isEqualTo("title");
+        Assertions.assertThat(body.content()).isEqualTo("updated");
+
+    }
 }

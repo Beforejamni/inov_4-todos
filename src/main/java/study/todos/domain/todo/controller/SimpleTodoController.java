@@ -1,5 +1,6 @@
 package study.todos.domain.todo.controller;
 
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
+import study.todos.domain.todo.dto.UpdateTodoReq;
 import study.todos.domain.todo.service.TodoService;
 
 @RestController
@@ -35,5 +37,12 @@ public class SimpleTodoController {
     public ResponseEntity<Page<SimpleTodoRes>> findTodos(@PageableDefault()Pageable pageable) {
 
         return ResponseEntity.ok(todoService.findTodos(pageable));
+    }
+
+    @PostMapping("/{todoId}")
+    public ResponseEntity<SimpleTodoRes> updateTodo(@PathVariable Long todoId,
+                                                    @RequestBody UpdateTodoReq req){
+
+        return ResponseEntity.ok(todoService.updateTodo(todoId, req));
     }
 }

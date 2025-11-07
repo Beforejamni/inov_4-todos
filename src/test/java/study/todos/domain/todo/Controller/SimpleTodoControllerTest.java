@@ -28,6 +28,7 @@ import study.todos.common.exception.GlobalExceptionHandler;
 import study.todos.domain.todo.controller.SimpleTodoController;
 import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
+import study.todos.domain.todo.dto.UpdateTodoReq;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.service.TodoService;
@@ -185,6 +186,28 @@ public class SimpleTodoControllerTest {
                 .andExpect(jsonPath("$.totalPages").value(2))
                 .andExpect(jsonPath("$.content[0].title").value("title1"))
                 .andExpect(jsonPath("$.content[9].title").value("title10"));
+
+    }
+
+
+    @Test
+    @DisplayName("일정_수정_성공")
+    void updateTodo() throws Exception {
+        //given
+        UpdateTodoReq req = new UpdateTodoReq("updateTitle", "updateContents");
+        SimpleTodoRes result = new SimpleTodoRes("jamni", "updateTitle", "updateContents", null, null);
+        BDDMockito.given(todoService.updateTodo(any(Long.class), any(UpdateTodoReq.class))).willReturn(result);
+
+        //when & then
+        mockMvc.perform(post("/todos/{todoId}", 1)
+                .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(req)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.title").value("updateTitle"))
+                .andExpect(jsonPath("$.contents").value("updateContents"));
+
+
 
     }
 }

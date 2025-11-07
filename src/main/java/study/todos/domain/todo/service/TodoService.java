@@ -14,5 +14,6 @@ public interface TodoService {
     SimpleTodoRes findTodo(Long todoId);
 
     Page<SimpleTodoRes> findTodos(Pageable pageable);
+
     SimpleTodoRes updateTodo(Long todoId, UpdateTodoReq req);
 }
