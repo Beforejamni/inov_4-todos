@@ -29,8 +29,6 @@ public class Comment {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column(name = "todo_id")
-    private Long todoId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id", nullable = false)
