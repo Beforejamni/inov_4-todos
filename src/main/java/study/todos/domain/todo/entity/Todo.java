@@ -4,9 +4,12 @@ import jakarta.persistence.*;
 import jdk.jfr.Timestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import study.todos.domain.comment.entitiy.Comment;
 import study.todos.domain.todo.dto.UpdateTodoReq;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "todos")
@@ -35,6 +38,12 @@ public class Todo {
     @Column(name = "update_at")
     private LocalDateTime updatedAt;
 
+
+//  업데이트 추가 발생/제약 관리로 인해 단방향 진행
+//    //cascade = 영속성 전이 기능
+//    //ophanRemoval = 고아 객체 자동 삭제
+//    @OneToMany(mappedBy = "comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+//    private List<Comment> comments = new ArrayList<>();
 
     public Todo() {}
 

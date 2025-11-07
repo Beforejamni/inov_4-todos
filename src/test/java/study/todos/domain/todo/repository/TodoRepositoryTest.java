@@ -20,7 +20,7 @@ public class TodoRepositoryTest {
 
     @Test
     @DisplayName("Todo_저장_성공")
-    void saveTodo() {
+    void  saveTodo() {
 
         //given
         Todo todo = new Todo("jamni","title","contents");

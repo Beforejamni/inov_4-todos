@@ -8,7 +8,7 @@ import study.todos.domain.todo.dto.UpdateTodoReq;
 
 import java.util.Map;
 
-
+//게시글 삭제시 관련 댓글 삭제를 데코레이터 패턴으로 예상
 public interface TodoService {
 
     SimpleTodoRes saveTodo(SimpleTodoReq req);
