@@ -14,6 +14,7 @@ import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.repository.JpaTodoRepository;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -68,6 +69,18 @@ public class SimpleTodoService implements TodoService{
         foundTodo.updateTodo(req);
 
         return new SimpleTodoRes(foundTodo.getUserName(), foundTodo.getTitle(), foundTodo.getContent(), foundTodo.getCreatedAt(), foundTodo .getUpdatedAt());
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> deleteTodo(Long todoId) {
+
+        Todo foundTodo = jpaTodoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TodoErrorCode.NOT_FOUND));
+
+        jpaTodoRepository.delete(foundTodo);
+
+        return Map.of("message" , "일정이 삭제되었습니다.");
     }
 
 }

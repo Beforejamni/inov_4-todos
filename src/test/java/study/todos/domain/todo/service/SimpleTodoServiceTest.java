@@ -14,12 +14,14 @@ import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
 import study.todos.domain.todo.dto.UpdateTodoReq;
 import study.todos.domain.todo.entity.Todo;
+import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.repository.JpaTodoRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -203,7 +205,33 @@ public class SimpleTodoServiceTest{
         TodoException todoException = assertThrows(TodoException.class, () ->
                 simpleTodoService.updateTodo(1L, req));
 
+        Assertions.assertThat(todoException.getStatus()).isEqualTo(TodoErrorCode.NOT_FOUND.getStatus());
+    }
 
+    @Test
+    @DisplayName("일정_삭제_성공")
+    void deleteTodo_성공() {
+
+        SimpleTodoReq req = new SimpleTodoReq("jamni", "제목", "내용");
+
+        Todo todo = new Todo(req.userName(), req.title(), req.content());
+
+        given(jpaTodoRepository.findById(1L)).willReturn(Optional.of(todo));
+
+        Map<String, String> message = simpleTodoService.deleteTodo(1L);
+
+        Assertions.assertThat(message.get("message")).isEqualTo("일정이 삭제되었습니다.");
+    }
+
+    @Test
+    @DisplayName("일정_삭제_실패")
+    void deleteTodo_실패() {
+
+        given(jpaTodoRepository.findById(any(Long.class))).willReturn(Optional.empty());
+
+        TodoException todoException = assertThrows(TodoException.class, () -> simpleTodoService.deleteTodo(1L));
+
+        Assertions.assertThat(todoException.getStatus()).isEqualTo(TodoErrorCode.NOT_FOUND.getStatus());
     }
 }
 

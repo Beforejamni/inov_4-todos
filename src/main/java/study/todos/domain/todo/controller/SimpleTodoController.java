@@ -12,6 +12,8 @@ import study.todos.domain.todo.dto.SimpleTodoRes;
 import study.todos.domain.todo.dto.UpdateTodoReq;
 import study.todos.domain.todo.service.TodoService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/todos")
 public class SimpleTodoController {
@@ -44,5 +46,12 @@ public class SimpleTodoController {
                                                     @RequestBody UpdateTodoReq req){
 
         return ResponseEntity.ok(todoService.updateTodo(todoId, req));
+    }
+
+    @DeleteMapping("/{todoId}")
+    public ResponseEntity<Map<String, String>> deleteTodo(@PathVariable Long todoId) {
+
+
+        return  ResponseEntity.ok(todoService.deleteTodo(todoId));
     }
 }

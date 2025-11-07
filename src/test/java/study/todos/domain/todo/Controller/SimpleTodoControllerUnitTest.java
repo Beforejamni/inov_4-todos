@@ -27,7 +27,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -156,5 +158,36 @@ public class SimpleTodoControllerUnitTest {
                 () -> todoController.updateTodo(1L, req));
 
         Assertions.assertThat(todoException.getStatus()).isEqualTo(TodoErrorCode.NOT_FOUND.getStatus());
+    }
+
+    @Test
+    @DisplayName("일정_삭제_성공")
+    void deleteTodo_성공() {
+        Map<String, String> message = new HashMap<>();
+        message.put("message", "일정이 삭제되었습니다.");
+        BDDMockito.given(todoService.deleteTodo(any(Long.class))).willReturn(message);
+
+        ResponseEntity<Map<String, String>> response = todoController.deleteTodo(any(Long.class));
+
+        Map<String, String> res = response.getBody();
+
+        BDDMockito.verify(todoService).deleteTodo(any(Long.class));
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(res.get("message")).isEqualTo("일정이 삭제되었습니다.");
+    }
+
+    @Test
+    @DisplayName("일정_삭제_실패")
+    void deleteTodo_실패() {
+
+        BDDMockito.given(todoService.deleteTodo(any(Long.class))).willThrow(new TodoException(TodoErrorCode.NOT_FOUND));
+
+        TodoException todoException = assertThrows(TodoException.class, () -> todoController.deleteTodo(1L));
+
+        BDDMockito.verify(todoService).deleteTodo(any(Long.class));
+
+        Assertions.assertThat(todoException.getStatus()).isEqualTo(TodoErrorCode.NOT_FOUND.getStatus());
+
     }
 }

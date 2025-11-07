@@ -105,4 +105,17 @@ public class TodoRepositoryTest {
 
     }
 
+    @Test
+    @DisplayName("일정_삭제_성공")
+    void deleteTodo_성공() {
+        Todo todo = new Todo("jamni", "title", "contents");
+
+        Todo save = jpaTodoRepository.save(todo);
+
+        jpaTodoRepository.delete(save);
+
+        Optional<Todo> foundTodo = jpaTodoRepository.findById(1L);
+
+        Assertions.assertThat(foundTodo).isEmpty();
+    }
 }

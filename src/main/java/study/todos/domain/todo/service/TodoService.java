@@ -6,6 +6,8 @@ import study.todos.domain.todo.dto.SimpleTodoReq;
 import study.todos.domain.todo.dto.SimpleTodoRes;
 import study.todos.domain.todo.dto.UpdateTodoReq;
 
+import java.util.Map;
+
 
 public interface TodoService {
 
@@ -16,4 +18,6 @@ public interface TodoService {
     Page<SimpleTodoRes> findTodos(Pageable pageable);
 
     SimpleTodoRes updateTodo(Long todoId, UpdateTodoReq req);
+
+    Map<String, String> deleteTodo(Long todoId);
 }

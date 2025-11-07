@@ -1,8 +1,6 @@
 package study.todos.domain.todo.Controller;
 
 
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -39,6 +37,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 
@@ -223,5 +222,29 @@ public class SimpleTodoControllerTest {
                     .content(om.writeValueAsString(req)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message").value("일정을 찾을 수 없습니다."));
+    }
+
+    @Test
+    @DisplayName("일정_삭제_성공")
+    void deleteTodo_성공() throws Exception {
+        Map<String, String> map = Map.of("message", "일정이 삭제되었습니다.");
+
+        BDDMockito.given(todoService.deleteTodo(any(Long.class))).willReturn(map);
+
+        mockMvc.perform(delete("/todos/{todoId}", 1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("일정이 삭제되었습니다."));
+    }
+
+    @Test
+    @DisplayName("일정_삭제_실패")
+    void deleteTodo_실패() throws Exception {
+
+        BDDMockito.given(todoService.deleteTodo(any(Long.class))).willThrow(new TodoException(TodoErrorCode.NOT_FOUND));
+
+        mockMvc.perform(delete("/todos/{todoId}", 1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
