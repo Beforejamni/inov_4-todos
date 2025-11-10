@@ -3,17 +3,11 @@ package study.todos.domain.comment.repository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import study.todos.domain.comment.entitiy.Comment;
 import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.repository.JpaTodoRepository;
-
-import java.util.Optional;
-
-import static org.mockito.ArgumentMatchers.any;
 
 @DataJpaTest
 public class JpaCommentRepositoryTest {

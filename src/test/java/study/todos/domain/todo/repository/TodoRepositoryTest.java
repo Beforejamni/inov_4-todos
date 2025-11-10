@@ -26,8 +26,8 @@ public class TodoRepositoryTest {
         Todo todo = new Todo("jamni","title","contents");
 
         //when
-        jpaTodoRepository.save(todo);
-        Todo savedTodo = jpaTodoRepository.findById(1L).get();
+        Todo savedTodo = jpaTodoRepository.save(todo);
+        //다른 테스트에 영향을 받음
 
         //then
         Assertions.assertThat(savedTodo.getUserName()).isEqualTo("jamni");

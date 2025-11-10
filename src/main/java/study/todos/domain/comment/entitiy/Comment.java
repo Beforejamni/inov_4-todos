@@ -45,6 +45,10 @@ public class Comment {
         return commentId;
     }
 
+    public Long getTodoId() {
+        return todo.getTodoId();
+    }
+
     public String getComment() {
         return comment;
     }
