@@ -12,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
 import study.todos.domain.comment.entitiy.Comment;
+import study.todos.domain.comment.exception.CommentErrorCode;
+import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.comment.repository.JpaCommentRepository;
-import study.todos.domain.service.SimpleCommentService;
 import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
@@ -78,14 +79,30 @@ public class SimpleCommentServiceTest {
     }
 
     @Test
-    @DisplayName("댓글_찾기")
-    void findComment() {
+    @DisplayName("댓글_찾기_성공")
+    void findComment_성공() {
         //given
-        save_성공();
+        Todo todo = new Todo();
+        Comment comment = new Comment(todo, "comments", "userName");
+        BDDMockito.given(jpaCommentRepository.findById(any(Long.class))).willReturn(Optional.of(comment));
 
         SimpleCommentRes ret  = simpleCommentService.findComment(1L);
 
         Assertions.assertThat(ret.getComments()).isEqualTo("comments");
         Assertions.assertThat(ret.getUserName()).isEqualTo("userName");
+    }
+
+    @Test
+    @DisplayName("댓글_찾기_실패")
+    void findComment_실패() {
+
+        BDDMockito.given(jpaCommentRepository.findById(any(Long.class))).willReturn(Optional.empty());
+
+
+        CommentException commentException = assertThrows(CommentException.class,
+                () -> simpleCommentService.findComment(1L));
+
+        Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
+        Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
     }
 }

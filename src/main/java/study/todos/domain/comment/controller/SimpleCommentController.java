@@ -2,13 +2,10 @@ package study.todos.domain.comment.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
-import study.todos.domain.service.CommentService;
-
-import javax.swing.text.html.parser.Entity;
+import study.todos.domain.comment.service.CommentService;
 
 @RestController
 @RequestMapping("/comments")

@@ -18,7 +18,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import study.todos.common.exception.GlobalExceptionHandler;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
-import study.todos.domain.service.SimpleCommentService;
+import study.todos.domain.comment.service.SimpleCommentService;
+
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;

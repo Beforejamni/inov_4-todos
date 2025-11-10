@@ -13,10 +13,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
-import study.todos.domain.service.SimpleCommentService;
+import study.todos.domain.comment.service.SimpleCommentService;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 
