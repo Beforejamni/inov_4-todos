@@ -22,4 +22,10 @@ public class SimpleCommentController {
                                                  @RequestBody SimpleCommentReq req) {
         return new ResponseEntity<>( commentService.save(todoId, req), HttpStatus.CREATED);
     }
+
+    @GetMapping("/comments/{commentId}")
+    public ResponseEntity<SimpleCommentRes> findComment(@PathVariable Long commentId) {
+
+        return ResponseEntity.ok(commentService.findComment(commentId));
+    }
 }

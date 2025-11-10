@@ -15,12 +15,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
+import study.todos.domain.comment.exception.CommentErrorCode;
+import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.comment.service.SimpleCommentService;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -68,5 +71,31 @@ public class SimpleCommentControllerUnitTest {
 
         Assertions.assertThat(todoException.getStatus()).isEqualTo(TodoErrorCode.NOT_FOUND.getStatus());
         Assertions.assertThat(todoException.getMessage()).isEqualTo(TodoErrorCode.NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("댓글_찾기_성공")
+    void findComment_성공() {
+        BDDMockito.given(commentService.findComment(any(Long.class))).willReturn(res);
+
+        ResponseEntity<SimpleCommentRes> comment = commentController.findComment(1L);
+
+        Assertions.assertThat(comment.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        SimpleCommentRes body = comment.getBody();
+        Assertions.assertThat(body.getComments()).isEqualTo("comments");
+        Assertions.assertThat(body.getUserName()).isEqualTo("userName");
+    }
+
+    @Test
+    @DisplayName("댓글_찾기_실패")
+    void findComment_실패() {
+        BDDMockito.given(commentService.findComment(anyLong())).willThrow(new CommentException(CommentErrorCode.NOT_FOUND));
+
+        CommentException commentException = assertThrows(CommentException.class,
+                () -> commentController.findComment(1L));
+
+        Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
+        Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
     }
 }
