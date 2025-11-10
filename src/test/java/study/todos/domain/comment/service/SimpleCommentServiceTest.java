@@ -76,4 +76,16 @@ public class SimpleCommentServiceTest {
         Assertions.assertThat(todoException.getStatus()).isEqualTo(TodoErrorCode.NOT_FOUND.getStatus());
         Assertions.assertThat(todoException.getMessage()).isEqualTo(TodoErrorCode.NOT_FOUND.getMessage());
     }
+
+    @Test
+    @DisplayName("댓글_찾기")
+    void findComment() {
+        //given
+        save_성공();
+
+        SimpleCommentRes ret  = simpleCommentService.findComment(1L);
+
+        Assertions.assertThat(ret.getComments()).isEqualTo("comments");
+        Assertions.assertThat(ret.getUserName()).isEqualTo("userName");
+    }
 }
