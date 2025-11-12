@@ -120,17 +120,16 @@ public class SimpleCommentServiceTest {
         //given
         Todo todo = new Todo();
         todo.setId(1L);
-
-        List<Comment> comments = IntStream.range(1, 12).mapToObj(i -> new Comment(Long.valueOf(i), todo, "comment" + i, "userName")).toList();
-
         Pageable pageable = PageRequest.of(0, 10);
         Pagination pagination = new Pagination(0 , 10, 10, 2 ,11L);
-        PageImpl<Comment> commentsPage = new PageImpl<>(comments, pageable, comments.size());
+
+        List<Comment> comments = IntStream.range(1, 11).mapToObj(i -> new Comment(Long.valueOf(i), todo, "comment" + i, "userName")).toList();
+        Page<Comment> commentsPage = new PageImpl<>(comments, pageable, comments.size());
 
         BDDMockito.given(jpaCommentRepository.findAllByTodoId(any(Long.class),any(Pageable.class))).willReturn(commentsPage);
 
         //when
-        Api<Comment> ret =  simpleCommentService.findComments(1L , pageable);
+        Api<SimpleCommentRes> ret =  simpleCommentService.findComments(1L , pageable);
 
 
         //then
