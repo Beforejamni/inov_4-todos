@@ -67,7 +67,7 @@ public class JpaCommentRepositoryTest {
         List<Comment> comments = IntStream.range(1, 11).mapToObj(i -> new Comment(Long.valueOf(i), save, "comment" + i, "userName")).toList();
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<Comment> commentsByTodoId = jpaCommentRepository.findAllByTodoId(1L, pageable);
+        Page<Comment> commentsByTodoId = jpaCommentRepository.findAllByTodo_TodoId(1L, pageable);
 
         Assertions.assertThat(commentsByTodoId.getContent()).usingRecursiveComparison().isEqualTo(comments);
         Assertions.assertThat(commentsByTodoId.getTotalElements()).isEqualTo(11);

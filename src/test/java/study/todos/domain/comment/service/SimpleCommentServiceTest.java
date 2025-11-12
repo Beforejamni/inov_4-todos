@@ -121,20 +121,29 @@ public class SimpleCommentServiceTest {
         Todo todo = new Todo();
         todo.setId(1L);
         Pageable pageable = PageRequest.of(0, 10);
-        Pagination pagination = new Pagination(0 , 10, 10, 2 ,11L);
+        Pagination pagination = new Pagination(0 , 10, 10, 2 ,12L);
 
-        List<Comment> comments = IntStream.range(1, 11).mapToObj(i -> new Comment(Long.valueOf(i), todo, "comment" + i, "userName")).toList();
-        Page<Comment> commentsPage = new PageImpl<>(comments, pageable, comments.size());
+        List<Comment> comments = IntStream.range(1, 13).mapToObj(i -> new Comment(Long.valueOf(i), todo, "comment" + i, "userName")).toList();
 
-        BDDMockito.given(jpaCommentRepository.findAllByTodoId(any(Long.class),any(Pageable.class))).willReturn(commentsPage);
+        //pageSize만큼 잘라서 보내줘야 한다.
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize() , comments.size());
+        List<Comment> commentsSub = comments.subList(start, end);
+
+        Page<Comment> commentsPage = new PageImpl<>(commentsSub, pageable, comments.size());
+
+        BDDMockito.given(jpaCommentRepository.findAllByTodo_TodoId(any(Long.class),any(Pageable.class))).willReturn(commentsPage);
 
         //when
-        Api<SimpleCommentRes> ret =  simpleCommentService.findComments(1L , pageable);
-
+        Api<List<SimpleCommentRes>> ret =  simpleCommentService.findComments(1L , pageable);
 
         //then
-        Assertions.assertThat(ret.getBody()).usingRecursiveComparison().isEqualTo(comments);
+        List<SimpleCommentRes> commentRes = commentsPage.getContent().stream().map(i -> new SimpleCommentRes(i.getTodoId(), i.getComment(), i.getUserName())).toList();
+        Assertions.assertThat(ret.getBody()).usingRecursiveComparison().isEqualTo(commentRes);
+
         Assertions.assertThat(ret.getPagination()).usingRecursiveComparison().isEqualTo(pagination);
+
+        BDDMockito.verify(jpaCommentRepository).findAllByTodo_TodoId(1L, pageable);
 
     }
 }

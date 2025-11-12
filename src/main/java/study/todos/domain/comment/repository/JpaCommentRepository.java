@@ -10,7 +10,7 @@ import study.todos.domain.comment.entitiy.Comment;
 public interface JpaCommentRepository extends JpaRepository<Comment, Long>, CommentRepository {
 
     @Query("select c from Comment c where c.todo.todoId = :todoId")
-    Page<Comment> findAllByTodoId(@Param("todoId") Long todoId , Pageable pageable);
+    Page<Comment> findAllByTodo_TodoId(@Param("todoId") Long todoId , Pageable pageable);
 }
 
 //EntityGraph -> LEFT OUTER JOIN
