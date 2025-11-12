@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,7 +30,6 @@ import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 
 import java.util.List;
-import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -62,6 +62,8 @@ public class SimpleCommentControllerTest {
                 .standaloneSetup(commentController)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .setMessageConverters(new MappingJackson2HttpMessageConverter(om))
+                //페이지처리를 위해 추가해줘야 한다.
+                .setCustomArgumentResolvers(new PageableHandlerMethodArgumentResolver())
                 .build();
     }
 
@@ -133,10 +135,11 @@ public class SimpleCommentControllerTest {
         Api<List<SimpleCommentRes>> serviceRes = SimpleCommentControllerUnitTest.extractApiComments();
         BDDMockito.given(commentService.findComments(anyLong(), any(Pageable.class))).willReturn(serviceRes);
 
-        mockMvc.perform(get("comments/{todoId}",1L)
+        mockMvc.perform(get("/comments/{todoId}",1L)
                         .param("page", "0")
                         .param("size", "10")
-                .contentType(MediaType.TEXT_PLAIN_VALUE))
+                //param을 이용해서 보낼 때, Application_Json 타입으로
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pagination.currentElement").value(10))
                 .andExpect(jsonPath("$.pagination.totalPage").value(2))
