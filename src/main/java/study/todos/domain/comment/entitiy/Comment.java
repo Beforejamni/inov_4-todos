@@ -41,6 +41,13 @@ public class Comment {
       this.userName = userName;
     }
 
+    public Comment(Long commentId, Todo todo, String comment, String userName) {
+        this.commentId = commentId;
+        this.todo = todo;
+        this.comment = comment;
+        this.userName = userName;
+    }
+
     public Long getCommentId() {
         return commentId;
     }
