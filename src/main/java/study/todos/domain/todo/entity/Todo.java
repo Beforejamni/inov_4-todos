@@ -93,4 +93,8 @@ public class Todo {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+    public void setId(long todoId) {
+        this.todoId = todoId;
+    }
 }

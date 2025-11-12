@@ -8,7 +8,13 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import study.todos.common.dto.Api;
+import study.todos.common.dto.Pagination;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
 import study.todos.domain.comment.entitiy.Comment;
@@ -20,7 +26,9 @@ import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.repository.JpaTodoRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -104,5 +112,30 @@ public class SimpleCommentServiceTest {
 
         Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
         Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시물_전체_댓글_조회")
+    void findComments_성공() {
+        //given
+        Todo todo = new Todo();
+        todo.setId(1L);
+
+        List<Comment> comments = IntStream.range(1, 12).mapToObj(i -> new Comment(Long.valueOf(i), todo, "comment" + i, "userName")).toList();
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Pagination pagination = new Pagination(0 , 10, 10, 2 ,11L);
+        PageImpl<Comment> commentsPage = new PageImpl<>(comments, pageable, comments.size());
+
+        BDDMockito.given(jpaCommentRepository.findAllByTodoId(any(Long.class),any(Pageable.class))).willReturn(commentsPage);
+
+        //when
+        Api<Comment> ret =  simpleCommentService.findComments(1L , pageable);
+
+
+        //then
+        Assertions.assertThat(ret.getBody()).usingRecursiveComparison().isEqualTo(comments);
+        Assertions.assertThat(ret.getPagination()).usingRecursiveComparison().isEqualTo(pagination);
+
     }
 }
