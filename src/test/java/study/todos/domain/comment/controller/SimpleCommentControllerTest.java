@@ -12,10 +12,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import study.todos.common.dto.Api;
 import study.todos.common.exception.GlobalExceptionHandler;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
@@ -24,6 +27,9 @@ import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.comment.service.SimpleCommentService;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
+
+import java.util.List;
+import java.util.stream.IntStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -108,7 +114,7 @@ public class SimpleCommentControllerTest {
 
     @Test
     @DisplayName("댓글_찾기_실패")
-    void findlComment_실패() throws Exception {
+    void findComment_실패() throws Exception {
 
         BDDMockito.given(commentService.findComment(anyLong())).willThrow( new CommentException(CommentErrorCode.NOT_FOUND));
 
@@ -118,6 +124,26 @@ public class SimpleCommentControllerTest {
                 .andExpect(jsonPath("$.message").value(CommentErrorCode.NOT_FOUND.getMessage()));
 
         BDDMockito.verify(commentService).findComment(1L);
+    }
+
+    @Test
+    @DisplayName("게시글_댓글_전체_조회")
+    void findComments_성공() throws Exception {
+        //give
+        Api<List<SimpleCommentRes>> serviceRes = SimpleCommentControllerUnitTest.extractApiComments();
+        BDDMockito.given(commentService.findComments(anyLong(), any(Pageable.class))).willReturn(serviceRes);
+
+        mockMvc.perform(get("comments/{todoId}",1L)
+                        .param("page", "0")
+                        .param("size", "10")
+                .contentType(MediaType.TEXT_PLAIN_VALUE))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pagination.currentElement").value(10))
+                .andExpect(jsonPath("$.pagination.totalPage").value(2))
+                .andExpect(jsonPath("$.pagination.totalElement").value(12));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        BDDMockito.verify(commentService).findComments(1L, pageable);
     }
 
 }
