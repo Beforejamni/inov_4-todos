@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 import org.yaml.snakeyaml.error.MarkedYAMLException;
+import study.todos.domain.Member.exception.MemberException;
 import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoException;
@@ -21,6 +22,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CommentException.class)
     public  ResponseEntity<Map<String, String>> handlerCommentException(CommentException e) {
+        return ResponseEntity.status(e.getStatus()).body(Map.of("message", e.getMessage()));
+    }
+
+    @ExceptionHandler(MemberException.class)
+    public ResponseEntity<Map<String, String>> handlerMemberException(MemberException e) {
         return ResponseEntity.status(e.getStatus()).body(Map.of("message", e.getMessage()));
     }
 }
