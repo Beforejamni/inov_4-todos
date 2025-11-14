@@ -13,6 +13,7 @@ import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.service.CommentService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/comments")
@@ -46,5 +47,10 @@ public class SimpleCommentController {
     public ResponseEntity<SimpleCommentRes> updateComment(@PathVariable Long commentId,
                                                           @RequestBody UpdateCommentReq req){
         return ResponseEntity.ok(commentService.updateComment(commentId,req));
+    }
+
+    @PostMapping("/delete/{commentId}")
+    public ResponseEntity<Map<String, String>> deleteComment(@PathVariable Long commentId) {
+        return ResponseEntity.ok(commentService.deleteComment(commentId));
     }
 }

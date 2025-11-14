@@ -31,6 +31,7 @@ import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -179,6 +180,21 @@ public class SimpleCommentControllerTest {
                 .andExpect(jsonPath("$.message").value(CommentErrorCode.NOT_FOUND.getMessage()));
 
         BDDMockito.verify(commentService).updateComment(1L, updateCommentReq);
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_성공")
+    void deleteComment_성공() throws Exception {
+        Map<String, String> message = Map.of("message", "댓글이 삭제되었습니다.");
+        BDDMockito.given(commentService.deleteComment(anyLong())).willReturn(message);
+
+        mockMvc.perform(post("/comments/delete/{commentId}", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value(message.get("message")));
+
+        BDDMockito.verify(commentService).deleteComment(1L);
     }
 
 }

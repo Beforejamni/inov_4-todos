@@ -23,10 +23,12 @@ import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.exception.CommentErrorCode;
 import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.comment.service.SimpleCommentService;
+import study.todos.domain.comment.service.StubCommentService;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,7 +40,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 public class SimpleCommentControllerUnitTest {
 
     @Mock
-    SimpleCommentService commentService;
+    StubCommentService commentService;
 
     @InjectMocks
     SimpleCommentController commentController;
@@ -161,5 +163,34 @@ public class SimpleCommentControllerUnitTest {
 
         Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
         Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_성공")
+    void deleteComment_성공() {
+        Map<String, String> message = Map.of("message", "댓글이 삭제되었습니다.");
+        BDDMockito.given(commentService.deleteComment(anyLong())).willReturn(message);
+
+        ResponseEntity<Map<String, String>> response = commentController.deleteComment(1L);
+
+        Map<String, String> body = response.getBody();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(body.get("message")).isEqualTo("댓글이 삭제되었습니다.");
+
+        BDDMockito.verify(commentService).deleteComment(1L);
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_실패")
+    void deleteComment_실패() {
+        BDDMockito.given(commentService.deleteComment(anyLong())).willThrow(new CommentException(CommentErrorCode.NOT_FOUND));
+
+        CommentException commentException = assertThrows(CommentException.class,
+                () -> commentController.deleteComment(1L));
+
+        Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
+        Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
+
+        BDDMockito.verify(commentService).deleteComment(1L);
     }
 }
