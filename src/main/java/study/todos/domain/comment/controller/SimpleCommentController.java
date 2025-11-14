@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import study.todos.common.dto.Api;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
+import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.service.CommentService;
 
 import java.util.List;
@@ -39,5 +40,11 @@ public class SimpleCommentController {
     public ResponseEntity<Api<List<SimpleCommentRes>>> findComments(@PathVariable Long todoId,
                                                                     @PageableDefault Pageable pageable) {
         return ResponseEntity.ok(commentService.findComments(todoId, pageable));
+    }
+
+    @PostMapping("/update/{commentId}")
+    public ResponseEntity<SimpleCommentRes> updateComment(@PathVariable Long commentId,
+                                                          @RequestBody UpdateCommentReq req){
+        return ResponseEntity.ok(commentService.updateComment(commentId,req));
     }
 }

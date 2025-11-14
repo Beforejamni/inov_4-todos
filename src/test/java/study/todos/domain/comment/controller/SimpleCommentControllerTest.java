@@ -1,6 +1,7 @@
 package study.todos.domain.comment.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,9 +24,11 @@ import study.todos.common.dto.Api;
 import study.todos.common.exception.GlobalExceptionHandler;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
+import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.exception.CommentErrorCode;
 import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.comment.service.SimpleCommentService;
+import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 
@@ -147,6 +150,37 @@ public class SimpleCommentControllerTest {
 
         Pageable pageable = PageRequest.of(0, 10);
         BDDMockito.verify(commentService).findComments(1L, pageable);
+    }
+
+    @Test
+    @DisplayName("댓글_수정_성공")
+    void updateComment_성공() throws Exception {
+        UpdateCommentReq updateCommentReq = new UpdateCommentReq("comments");
+        BDDMockito.given(commentService.updateComment(anyLong(),any(UpdateCommentReq.class))).willReturn(res);
+
+        mockMvc.perform(post("/comments/update/{commentId}", 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(om.writeValueAsString(updateCommentReq)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.comments").value("comments"))
+                .andExpect(jsonPath("$.userName").value("userName"));
+
+        BDDMockito.verify(commentService).updateComment(1L, updateCommentReq);
+    }
+
+    @Test
+    @DisplayName("댓글_수정_실패")
+    void updateComment_실패() throws Exception {
+        UpdateCommentReq updateCommentReq = new UpdateCommentReq("comments");
+        BDDMockito.given(commentService.updateComment(anyLong(), any(UpdateCommentReq.class))).willThrow(new CommentException(CommentErrorCode.NOT_FOUND));
+
+        mockMvc.perform(post("/comments/update/{commentId}", 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(om.writeValueAsString(updateCommentReq)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value(CommentErrorCode.NOT_FOUND.getMessage()));
+
+        BDDMockito.verify(commentService).updateComment(1L, updateCommentReq);
     }
 
 }

@@ -17,6 +17,7 @@ import study.todos.common.dto.Api;
 import study.todos.common.dto.Pagination;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
+import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.entitiy.Comment;
 import study.todos.domain.comment.exception.CommentErrorCode;
 import study.todos.domain.comment.exception.CommentException;
@@ -32,6 +33,7 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 @Transactional
@@ -145,5 +147,33 @@ public class SimpleCommentServiceTest {
 
         BDDMockito.verify(jpaCommentRepository).findAllByTodo_TodoId(1L, pageable);
 
+    }
+
+    @Test
+    @DisplayName("댓글_수정_성공")
+    void updateComment_성공() {
+       //given
+        Todo todo = new Todo();
+        Comment comment = new Comment(todo, "comments", "userName");
+        UpdateCommentReq req = new UpdateCommentReq("updatedComments");
+        BDDMockito.given(jpaCommentRepository.findById(anyLong())).willReturn(Optional.of(comment));
+        //when
+        SimpleCommentRes res =  simpleCommentService.updateComment(1L ,req);
+        //then
+        Assertions.assertThat(res.getComments()).isEqualTo("updatedComments");
+        Assertions.assertThat(res.getUserName()).isEqualTo("userName");
+    }
+
+    @Test
+    @DisplayName("댓글_수정_실패")
+    void updateComment_실패() {
+        //given
+        UpdateCommentReq req = new UpdateCommentReq("updateComments");
+        BDDMockito.given(jpaCommentRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        CommentException commentException = assertThrows(CommentException.class, () -> simpleCommentService.updateComment(1L, req));
+
+        Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
+        Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
     }
 }

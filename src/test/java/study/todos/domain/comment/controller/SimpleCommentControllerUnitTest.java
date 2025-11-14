@@ -19,6 +19,7 @@ import study.todos.common.dto.Api;
 import study.todos.common.dto.Pagination;
 import study.todos.domain.comment.dto.SimpleCommentReq;
 import study.todos.domain.comment.dto.SimpleCommentRes;
+import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.exception.CommentErrorCode;
 import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.comment.service.SimpleCommentService;
@@ -131,5 +132,34 @@ public class SimpleCommentControllerUnitTest {
         Pagination pagination = new Pagination(0, 10, 10, 2, 12L);
 
         return new Api<>(simpleCommentResList, pagination);
+    }
+
+    @Test
+    @DisplayName("댓글_수정_성공")
+    void updateComment_성공() {
+        UpdateCommentReq updateReq = new UpdateCommentReq("comments");
+        BDDMockito.given(commentService.updateComment(anyLong(),any(UpdateCommentReq.class))).willReturn(res);
+
+        ResponseEntity<SimpleCommentRes> responseEntity =  commentController.updateComment(1L,updateReq);
+        Assertions.assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        SimpleCommentRes body = responseEntity.getBody();
+        Assertions.assertThat(body.getComments()).isEqualTo("comments");
+        Assertions.assertThat(body.getUserName()).isEqualTo("userName");
+
+        BDDMockito.verify(commentService).updateComment(1L, updateReq);
+    }
+
+    @Test
+    @DisplayName("댓글_수정_실패")
+    void updateComment_실패() {
+        UpdateCommentReq updateCommentReq = new UpdateCommentReq("comments");
+        BDDMockito.given(commentService.updateComment(anyLong(), any(UpdateCommentReq.class))).willThrow(new CommentException(CommentErrorCode.NOT_FOUND));
+
+        CommentException commentException = assertThrows(CommentException.class,
+                () -> commentController.updateComment(1L, updateCommentReq));
+
+        Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
+        Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
     }
 }

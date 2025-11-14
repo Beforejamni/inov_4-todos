@@ -3,6 +3,7 @@ package study.todos.domain.comment.entitiy;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.todo.entity.Todo;
 
 import java.time.LocalDateTime;
@@ -70,5 +71,9 @@ public class Comment {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void update(UpdateCommentReq req) {
+        this.comment = req.comments();
     }
 }
