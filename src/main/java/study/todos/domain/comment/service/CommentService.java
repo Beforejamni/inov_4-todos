@@ -8,6 +8,7 @@ import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.entitiy.Comment;
 
 import java.util.List;
+import java.util.Map;
 
 public interface CommentService {
 
@@ -18,4 +19,6 @@ public interface CommentService {
     Api<List<SimpleCommentRes>> findComments(Long todoId, Pageable pageable);
 
     SimpleCommentRes updateComment(Long commentId, UpdateCommentReq req);
+
+    Map<String, String> deleteComment(Long commentId);
 }

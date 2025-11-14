@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,6 +29,7 @@ import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.repository.JpaTodoRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -175,5 +177,36 @@ public class SimpleCommentServiceTest {
 
         Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
         Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_성공")
+    void deleteComment_성공() {
+        Long commentId = 1L;
+
+        BDDMockito.given(jpaCommentRepository.existsById(anyLong())).willReturn(true);
+
+        Map<String, String> res = simpleCommentService.deleteComment(commentId);
+
+        Assertions.assertThat(res.get("message")).isEqualTo("댓글이 삭제되었습니다.");
+
+        BDDMockito.verify(jpaCommentRepository).deleteById(1L);
+        BDDMockito.verify(jpaCommentRepository).existsById(1L);
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_실패")
+    void deleteComment_실패() {
+
+        BDDMockito.given(jpaCommentRepository.existsById(anyLong())).willReturn(false);
+
+        CommentException commentException = assertThrows(CommentException.class,
+                () -> simpleCommentService.deleteComment(1L));
+
+        Assertions.assertThat(commentException.getStatus()).isEqualTo(CommentErrorCode.NOT_FOUND.getStatus());
+        Assertions.assertThat(commentException.getMessage()).isEqualTo(CommentErrorCode.NOT_FOUND.getMessage());
+
+        BDDMockito.verify(jpaCommentRepository).existsById(1L);
+        BDDMockito.verify(jpaCommentRepository, Mockito.never()).deleteById(1L);
     }
 }

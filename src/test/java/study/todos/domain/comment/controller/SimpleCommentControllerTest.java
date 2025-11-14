@@ -1,7 +1,6 @@
 package study.todos.domain.comment.controller;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +27,6 @@ import study.todos.domain.comment.dto.UpdateCommentReq;
 import study.todos.domain.comment.exception.CommentErrorCode;
 import study.todos.domain.comment.exception.CommentException;
 import study.todos.domain.comment.service.SimpleCommentService;
-import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.exception.TodoErrorCode;
 import study.todos.domain.todo.exception.TodoException;
 

@@ -13,6 +13,7 @@ import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.repository.JpaTodoRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 @DataJpaTest
@@ -34,7 +35,7 @@ public class JpaCommentRepositoryTest {
 
         Comment save = jpaCommentRepository.save(comment);
 
-
+        Assertions.assertThat(save.getCommentId()).isEqualTo(1L);
         Assertions.assertThat(save.getComment()).isEqualTo("comment");
         Assertions.assertThat(save.getUserName()).isEqualTo("jamni");
 
@@ -72,6 +73,21 @@ public class JpaCommentRepositoryTest {
         Assertions.assertThat(commentsByTodoId.getContent()).usingRecursiveComparison().isEqualTo(comments);
         Assertions.assertThat(commentsByTodoId.getTotalElements()).isEqualTo(11);
         Assertions.assertThat(commentsByTodoId.hasNext()).isTrue();
+    }
+
+    @Test
+    @DisplayName("댓글_삭제_성공")
+    void deleteComment() {
+        //given
+        Todo todo = new Todo();
+        Todo save = jpaTodoRepository.save(todo);
+        jpaCommentRepository.save(new Comment(save, "comments", "userName"));
+
+        //when
+        jpaCommentRepository.deleteById(1L);
+        Optional<Comment> byId = jpaCommentRepository.findById(1L);
+
+        Assertions.assertThat(byId).isEmpty();
     }
 }
 

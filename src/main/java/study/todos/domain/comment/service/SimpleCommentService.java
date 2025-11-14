@@ -19,6 +19,7 @@ import study.todos.domain.todo.exception.TodoException;
 import study.todos.domain.todo.repository.JpaTodoRepository;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -83,6 +84,17 @@ public class SimpleCommentService implements CommentService{
         comment.update(req);
 
         return new SimpleCommentRes(comment.getTodoId(), comment.getComment(), comment.getUserName());
+    }
+
+    @Override
+    public Map<String, String> deleteComment(Long commentId) {
+
+        if(!jpaCommentRepository.existsById(commentId)) {
+            throw new CommentException(CommentErrorCode.NOT_FOUND);
+        }
+        jpaCommentRepository.deleteById(commentId);
+
+        return Map.of("message", "댓글이 삭제되었습니다.");
     }
 
 
