@@ -41,4 +41,10 @@ public class JpaTodoMemberRepositoryTest {
         Assertions.assertThat(save.getTodo()).usingRecursiveComparison().isEqualTo(todo);
         Assertions.assertThat(save.getMember()).usingRecursiveComparison().isEqualTo(member);
     }
+
+    @Test
+    @DisplayName("일정_안_유저_조회")
+    void findTodoMemberByTodoId() {
+
+    }
 }

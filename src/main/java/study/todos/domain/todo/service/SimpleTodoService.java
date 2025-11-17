@@ -83,4 +83,8 @@ public class SimpleTodoService implements TodoService{
         return Map.of("message" , "일정이 삭제되었습니다.");
     }
 
+    public static Todo extractTodo(JpaTodoRepository jpaTodoRepository, Long todoId){
+        return jpaTodoRepository.findById(todoId)
+                .orElseThrow(() -> new TodoException(TodoErrorCode.NOT_FOUND));
+    }
 }

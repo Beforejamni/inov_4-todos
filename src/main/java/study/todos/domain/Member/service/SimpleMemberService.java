@@ -39,8 +39,7 @@ public class SimpleMemberService implements MemberService{
 
     @Override
     public SimpleMemberRes findMember(Long memberId) {
-        Member member = memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
-
+        Member member = extractMember(memberRepository, memberId);
         return new SimpleMemberRes(member.getMemberName(), member.getEmail());
     }
 
@@ -57,5 +56,9 @@ public class SimpleMemberService implements MemberService{
     @Override
     public Map<String, String> deleteMember(Long memberId) {
         return Map.of();
+    }
+
+    public static Member extractMember(JpaMemberRepository memberRepository, Long memberId) {
+       return memberRepository.findById(memberId).orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND));
     }
 }
