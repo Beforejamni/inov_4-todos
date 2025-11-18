@@ -21,4 +21,5 @@ public interface JpaTodoMemberRepository  extends JpaRepository<TodoMember, Long
     Page<Member> findByTodo(@Param("todo") Todo todo, Pageable pageable);
 
 
+    Todo todo(Todo todo);
 }

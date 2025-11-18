@@ -3,6 +3,7 @@ package study.todos.domain.Member.entity;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import study.todos.domain.Member.dto.UpdateMemberReq;
 import study.todos.domain.todomember.entity.TodoMember;
 
 import java.time.LocalDateTime;
@@ -52,5 +53,11 @@ public class Member {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void updateMember(UpdateMemberReq req){
+        this.memberName = (req.memberName() != null ) ? req.memberName() : this.memberName;
+        this.email = (req.email() != null) ? req.email() : this.getEmail();
+
     }
 }

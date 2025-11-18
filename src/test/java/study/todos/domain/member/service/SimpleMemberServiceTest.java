@@ -15,15 +15,21 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import study.todos.common.dto.Api;
+import study.todos.common.dto.Pagination;
 import study.todos.domain.Member.dto.SimpleMemberReq;
 import study.todos.domain.Member.dto.SimpleMemberRes;
+import study.todos.domain.Member.dto.UpdateMemberReq;
 import study.todos.domain.Member.entity.Member;
 import study.todos.domain.Member.exception.MemberErrorCode;
 import study.todos.domain.Member.exception.MemberException;
 import study.todos.domain.Member.repository.JpaMemberRepository;
 import study.todos.domain.Member.service.SimpleMemberService;
+import study.todos.domain.todomember.dto.SimpleMembersTodoRes;
+import study.todos.domain.todomember.service.SimpleTodoMemberService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -38,6 +44,8 @@ public class SimpleMemberServiceTest {
     @Mock
     private  JpaMemberRepository jpaMemberRepository;
 
+    @Mock
+    private SimpleTodoMemberService simpleTodoMemberService;
 
     @InjectMocks
     private SimpleMemberService simpleMemberService;
@@ -81,15 +89,57 @@ public class SimpleMemberServiceTest {
     }
 
     @Test
-    @DisplayName("유저_전체_조회")
+    @DisplayName("일정_유저_전체_조회")
     void findMembers_성공() {
-        Pageable pageable = PageRequest.of(1, 10);
-        List<Member> members = IntStream.range(1, 20).mapToObj(i -> new Member("userName" + i, "email")).toList();
+        Pageable pageable = PageRequest.of(0, 10);
+        List<Member> members = IntStream.range(1, 11).mapToObj(i -> new Member("userName" + i, "email")).toList();
+        Pagination pagination = new Pagination(0, 10, 10, 1, 10L);
+        SimpleMembersTodoRes simpleMembersTodoRes = new SimpleMembersTodoRes(1L, members, pagination);
 
-        Page<Member> memberPage = new PageImpl<>(members, pageable, members.size());
+        BDDMockito.given(simpleTodoMemberService.findByTodoId(anyLong(),any(Pageable.class))).willReturn(simpleMembersTodoRes);
 
-//        BDDMockito.given(jpaMemberRepository.findAllByTodo_TodoId(any(Pageable.class))).willReturn(memberPage);
+        Api<List<SimpleMemberRes>> response = simpleMemberService.findMembers(1L, pageable);
 
-        simpleMemberService.findMembers(1L, pageable);
+        Assertions.assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(members);
+        Assertions.assertThat(response.getPagination()).usingRecursiveComparison().isEqualTo(pagination);
+
+        BDDMockito.verify(simpleTodoMemberService).findByTodoId(1L, pageable);
+    }
+
+    @Test
+    @DisplayName("유저_수정_성공")
+    void updateMember_성공() {
+        UpdateMemberReq req = new UpdateMemberReq("updateUserName", "updateEmail");
+
+        BDDMockito.given(jpaMemberRepository.findById(anyLong())).willReturn(Optional.of(member));
+
+        SimpleMemberRes response = simpleMemberService.updateMember(1L, req);
+
+        Assertions.assertThat(response.memberName()).isEqualTo("updateUserName");
+        Assertions.assertThat(response.email()).isEqualTo("updateEmail");
+    }
+
+    @Test
+    @DisplayName("유저_수정_실패")
+    void updateMember_실패() {
+        UpdateMemberReq req = new UpdateMemberReq("updateUserName", "updateEmail");
+
+        BDDMockito.given(jpaMemberRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        MemberException memberException = assertThrows(MemberException.class, () -> simpleMemberService.updateMember(1L, req));
+
+        Assertions.assertThat(memberException.getStatus()).isEqualTo(MemberErrorCode.NOT_FOUND.getStatus());
+        Assertions.assertThat(memberException.getMessage()).isEqualTo(MemberErrorCode.NOT_FOUND.getMessage());
+    }
+
+    @Test
+    @DisplayName("유저_삭제_성공")
+    void deleteMember_성공() {
+        BDDMockito.given(jpaMemberRepository.findById(anyLong())).willReturn(Optional.of(member));
+
+        Map<String, String> response = simpleMemberService.deleteMember(1L);
+
+        Assertions.assertThat(response.get("message")).isEqualTo("유저가 삭제되었습니다.");
+        BDDMockito.verify(jpaMemberRepository).findById(1L);
     }
 }

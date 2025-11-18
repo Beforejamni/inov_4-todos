@@ -5,6 +5,8 @@ import study.todos.common.dto.Api;
 import study.todos.domain.Member.dto.SimpleMemberReq;
 import study.todos.domain.Member.dto.SimpleMemberRes;
 import study.todos.domain.Member.dto.UpdateMemberReq;
+import study.todos.domain.todomember.dto.SimpleMemberTodoRes;
+import study.todos.domain.todomember.dto.SimpleMembersTodoRes;
 
 import java.util.List;
 import java.util.Map;
