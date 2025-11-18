@@ -15,7 +15,7 @@ public interface MemberService {
 
     SimpleMemberRes saveMember(SimpleMemberReq req);
     SimpleMemberRes findMember(Long memberId);
-    Api<List<SimpleMemberRes>> findMembers(Long TodoId, Pageable pageable);
+    List<SimpleMemberRes> findMembers();
     SimpleMemberRes updateMember(Long memberId, UpdateMemberReq req);
     Map<String, String> deleteMember(Long memberId);
 }

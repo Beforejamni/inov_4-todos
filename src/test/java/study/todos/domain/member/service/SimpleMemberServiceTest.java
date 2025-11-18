@@ -89,8 +89,22 @@ public class SimpleMemberServiceTest {
     }
 
     @Test
-    @DisplayName("일정_유저_전체_조회")
+    @DisplayName("유저_전체_조회")
     void findMembers_성공() {
+        List<Member> members = IntStream.range(1, 13).mapToObj(i -> new Member("userName" + i, "email")).toList();
+        BDDMockito.given(jpaMemberRepository.findAll()).willReturn(members);
+
+        List<SimpleMemberRes> response = simpleMemberService.findMembers();
+
+        List<SimpleMemberRes> expect = members.stream().map(m -> new SimpleMemberRes(m.getMemberName(), m.getEmail())).toList();
+
+        Assertions.assertThat(response).usingRecursiveComparison().isEqualTo(expect);
+
+    }
+
+    @Test
+    @DisplayName("일정_유저_전체_조회")
+    void findMembersByTodo_성공() {
         Pageable pageable = PageRequest.of(0, 10);
         List<Member> members = IntStream.range(1, 11).mapToObj(i -> new Member("userName" + i, "email")).toList();
         Pagination pagination = new Pagination(0, 10, 10, 1, 10L);
@@ -98,7 +112,7 @@ public class SimpleMemberServiceTest {
 
         BDDMockito.given(simpleTodoMemberService.findByTodoId(anyLong(),any(Pageable.class))).willReturn(simpleMembersTodoRes);
 
-        Api<List<SimpleMemberRes>> response = simpleMemberService.findMembers(1L, pageable);
+        Api<List<SimpleMemberRes>> response = simpleMemberService.findMembersByTodoId(1L, pageable);
 
         Assertions.assertThat(response.getBody()).usingRecursiveComparison().isEqualTo(members);
         Assertions.assertThat(response.getPagination()).usingRecursiveComparison().isEqualTo(pagination);

@@ -48,9 +48,17 @@ public class SimpleMemberService implements MemberService{
         return new SimpleMemberRes(member.getMemberName(), member.getEmail());
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public Api<List<SimpleMemberRes>> findMembers(Long todoId, Pageable pageable) {
+    public List<SimpleMemberRes> findMembers() {
+        List<Member> response = memberRepository.findAll();
+        return response.stream().map(m -> new SimpleMemberRes(m.getMemberName(), m.getEmail())).toList();
+    }
+
+
+    @Transactional(readOnly = true)
+    public Api<List<SimpleMemberRes>> findMembersByTodoId(Long todoId, Pageable pageable) {
         SimpleMembersTodoRes memberByTodoId = simpleTodoMemberService.findByTodoId(todoId, pageable);
 
         List<Member> members = memberByTodoId.getMembers();
