@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import study.todos.domain.Member.dto.UpdateMemberReq;
+import study.todos.domain.auth.entity.Auth;
 import study.todos.domain.todomember.entity.TodoMember;
 
 import java.time.LocalDateTime;
@@ -27,6 +28,10 @@ public class Member {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @OneToOne()
+    @JoinColumn(name = "username")
+    private Auth auth;
 
     protected Member() {}
 
