@@ -5,12 +5,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import study.todos.domain.Member.entity.Member;
 import study.todos.domain.Member.repository.JpaMemberRepository;
 import study.todos.domain.todo.entity.Todo;
 import study.todos.domain.todo.repository.JpaTodoRepository;
 import study.todos.domain.todomember.entity.TodoMember;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.*;
+
+
+//통합테스트
 @DataJpaTest
 public class JpaTodoMemberRepositoryTest {
 
@@ -37,14 +49,29 @@ public class JpaTodoMemberRepositoryTest {
 
         TodoMember save = jpaTodoMemberRepository.save(todoMember);
 
-        Assertions.assertThat(save.getTodoMemberId()).isEqualTo(1L);
-        Assertions.assertThat(save.getTodo()).usingRecursiveComparison().isEqualTo(todo);
-        Assertions.assertThat(save.getMember()).usingRecursiveComparison().isEqualTo(member);
+        assertThat(save.getTodoMemberId()).isEqualTo(1L);
+        assertThat(save.getTodo()).usingRecursiveComparison().isEqualTo(todo);
+        assertThat(save.getMember()).usingRecursiveComparison().isEqualTo(member);
     }
 
     @Test
-    @DisplayName("일정_안_유저_조회")
-    void findTodoMemberByTodoId() {
+    @DisplayName("일정_유저_조회")
+    void findMembersByTodo() {
+        //given
+        Pageable pageable = PageRequest.of(0, 10);
+        Todo todo = new Todo("userName", "title", "content");
+        Todo saveTodo = jpaTodoRepository.save(todo);
+        List<Member> members = IntStream.range(1, 13)
+                .mapToObj(i -> jpaMemberRepository.save(new Member("userName" + i, "email")))
+                .toList();
+        members.forEach(m -> jpaTodoMemberRepository.save(new TodoMember(saveTodo, m)));
 
+        List<Member> expectMembers = members.subList(0, 10);
+        //when
+        Page<Member> responseMembers = jpaTodoMemberRepository.findByTodo(saveTodo, pageable);
+
+        //then
+        assertThat(responseMembers.getContent()).usingRecursiveComparison().isEqualTo(expectMembers);
+        assertThat(responseMembers.getTotalPages()).isEqualTo(2L);
     }
 }
