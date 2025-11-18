@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import study.todos.domain.Member.entity.Member;
 import study.todos.domain.Member.repository.JpaMemberRepository;
 import study.todos.domain.todo.entity.Todo;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.Assertions.*;
 
 //통합테스트
 @DataJpaTest
+@Transactional
 public class JpaTodoMemberRepositoryTest {
 
     @Autowired

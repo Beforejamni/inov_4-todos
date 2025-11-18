@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 import study.todos.common.dto.Pagination;
 import study.todos.domain.Member.entity.Member;
 import study.todos.domain.Member.repository.JpaMemberRepository;

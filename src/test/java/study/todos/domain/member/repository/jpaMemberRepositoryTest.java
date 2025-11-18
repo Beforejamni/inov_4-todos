@@ -21,7 +21,7 @@ public class jpaMemberRepositoryTest {
 
         Member saveMember = jpaMemberRepository.save(member);
 
-        Assertions.assertThat(saveMember.getMemberId()).isEqualTo(1L);
+        Assertions.assertThat(saveMember.getMemberId()).isNotNull();
         Assertions.assertThat(saveMember.getMemberName()).isEqualTo("userName");
         Assertions.assertThat(saveMember.getEmail()).isEqualTo("test@test.com");
     }

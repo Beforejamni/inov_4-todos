@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 @DataJpaTest
+//H2는 시퀀스 값을 롤백하지 않는다.
 public class JpaCommentRepositoryTest {
 
     @Autowired
@@ -34,8 +35,8 @@ public class JpaCommentRepositoryTest {
         Comment comment = new Comment(todo, "comment", "jamni");
 
         Comment save = jpaCommentRepository.save(comment);
-
-        Assertions.assertThat(save.getCommentId()).isEqualTo(1L);
+        //시퀀스값 누적으로 인해 테스트 코드 수정
+        Assertions.assertThat(save.getCommentId()).isNotNull();
         Assertions.assertThat(save.getComment()).isEqualTo("comment");
         Assertions.assertThat(save.getUserName()).isEqualTo("jamni");
 
