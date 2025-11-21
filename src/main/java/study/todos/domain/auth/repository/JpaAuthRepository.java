@@ -6,4 +6,5 @@ import study.todos.domain.auth.entity.Auth;
 
 @Repository
 public interface JpaAuthRepository extends JpaRepository<Auth, Long> {
+    Object existsAuthsByUsername(String username);
 }

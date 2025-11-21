@@ -3,8 +3,6 @@ package study.todos.domain.auth.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import study.todos.domain.Member.entity.Member;
 
 @Entity
 public class Auth {
@@ -16,4 +14,20 @@ public class Auth {
     @Column(name = "password")
     private String password;
 
+    public Auth(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public Auth() {
+
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
 }
