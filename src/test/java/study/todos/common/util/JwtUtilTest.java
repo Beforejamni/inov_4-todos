@@ -1,4 +1,4 @@
-package study.todos.common;
+package study.todos.common.util;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import study.todos.common.util.JwtUtil;
 
 import java.util.Date;
 

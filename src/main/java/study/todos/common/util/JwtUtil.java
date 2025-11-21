@@ -3,8 +3,10 @@ package study.todos.common.util;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
+import org.springframework.stereotype.Component;
 
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -15,6 +17,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+
+@Component
 public class JwtUtil {
 
     private static Key key;
@@ -52,6 +56,16 @@ public class JwtUtil {
         }
     }
 
+    public String extractToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+
+        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        return null;
+    }
+
     private String createToken(String username, long expiredDate) {
         return Jwts.builder().setHeader(createHeader())
                 .claim("username", username)
@@ -61,6 +75,7 @@ public class JwtUtil {
                 .setExpiration(createExpiredDate(expiredDate))
                 .compact();
     }
+
 
     private Map<String, Object> createHeader() {
         Map<String, Object> header = new HashMap<>();

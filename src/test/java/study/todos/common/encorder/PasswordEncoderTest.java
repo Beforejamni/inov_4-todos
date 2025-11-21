@@ -1,4 +1,4 @@
-package study.todos.common;
+package study.todos.common.encorder;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
