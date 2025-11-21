@@ -37,11 +37,11 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createAccessToken(String username){
+    public static String createAccessToken(String username){
         return createToken(username, ACCESS_EXP);
     }
 
-    public String createRefreshToken(String username) {
+    public static String createRefreshToken(String username) {
         return createToken(username, REFRESH_EXP);
     }
 
@@ -66,7 +66,7 @@ public class JwtUtil {
         return null;
     }
 
-    private String createToken(String username, long expiredDate) {
+    private static String createToken(String username, long expiredDate) {
         return Jwts.builder().setHeader(createHeader())
                 .claim("username", username)
                 .setSubject(username)
@@ -77,7 +77,7 @@ public class JwtUtil {
     }
 
 
-    private Map<String, Object> createHeader() {
+    private  static Map<String, Object> createHeader() {
         Map<String, Object> header = new HashMap<>();
 
         header.put("type", JWT_TYPE);
@@ -87,7 +87,7 @@ public class JwtUtil {
         return header;
     }
 
-    private Date createExpiredDate(long expiredDate) {
+    private static Date createExpiredDate(long expiredDate) {
         Instant expiryDate = Instant.now().plus(Duration.ofMillis(expiredDate));
         return Date.from(expiryDate);
     }

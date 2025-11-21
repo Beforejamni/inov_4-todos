@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import study.todos.common.config.PasswordEncoder;
 import study.todos.common.util.JwtUtil;
@@ -28,6 +27,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 
 @ExtendWith(MockitoExtension.class)
 public class SimpleAuthServiceTest {
@@ -92,22 +92,57 @@ public class SimpleAuthServiceTest {
 
         SimpleMemberReq simpleMemberReq = new SimpleMemberReq("MemberName", "email");
 
-        BDDMockito.verify(simpleMemberService, Mockito.never()).saveMember(simpleMemberReq);
+        BDDMockito.verify(simpleMemberService, never()).saveMember(simpleMemberReq);
 
     }
 
     @Test
     @DisplayName("로그인_성공")
     void signIn_성공() {
-        Auth auth = new Auth("nickName", "password");
+        Auth auth = new Auth("nickName", "encodedPassword");
         BDDMockito.given(jpaAuthRepository.findByUsername(any(String.class))).willReturn(Optional.of(auth));
         BDDMockito.given(passwordEncoder.matches(any(String.class), any(String.class))).willReturn(true);
 
-        SimpleSignInReq req =  new SimpleSignInReq("nickName", "password");
-        SimpleTokenDto response = simpleAuthService.signIn(req);
+        SimpleSignInReq simpleSignInReq =  new SimpleSignInReq("nickName", "password");
+        SimpleTokenDto response = simpleAuthService.signIn(simpleSignInReq);
 
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(jwtUtil.validateToken(response.accessToken())).isTrue();
         Assertions.assertThat(jwtUtil.validateToken(response.refreshToken())).isTrue();
+
+        BDDMockito.verify(jpaAuthRepository).findByUsername(simpleSignInReq.username());
+        BDDMockito.verify(passwordEncoder).matches(simpleSignInReq.password(),auth.getPassword());
+    }
+
+    @Test
+    @DisplayName("로그인_실패_아이디_불일치")
+    void signIn_아이디_불일치() {
+        BDDMockito.given(jpaAuthRepository.findByUsername(any(String.class))).willReturn(Optional.empty());
+        SimpleSignInReq signInReq =  new SimpleSignInReq("nickName", "password");
+
+        AuthException authException = assertThrows(AuthException.class, () -> simpleAuthService.signIn(signInReq));
+
+        Assertions.assertThat(authException.getStatus()).isEqualTo(AuthErrorCode.INCONSISTENCY.getStatus());
+        Assertions.assertThat(authException.getMessage()).isEqualTo(AuthErrorCode.INCONSISTENCY.getMessage());
+
+        BDDMockito.verify(jpaAuthRepository).findByUsername(signInReq.username());
+        BDDMockito.verify(passwordEncoder, never()).matches(any(String.class), any(String.class));
+    }
+
+    @Test
+    @DisplayName("로그인_실패_비밀번호_불일치")
+    void signIn_비밀번호_불일치() {
+        Auth auth = new Auth("nickName", "encodedPassword");
+        BDDMockito.given(jpaAuthRepository.findByUsername(any(String.class))).willReturn(Optional.of(auth));
+        BDDMockito.given(passwordEncoder.matches(any(String.class), any(String.class))).willReturn(false);
+
+        SimpleSignInReq signInReq =  new SimpleSignInReq("nickName", "password");
+        AuthException authException = assertThrows(AuthException.class, () -> simpleAuthService.signIn(signInReq));
+
+        Assertions.assertThat(authException.getStatus()).isEqualTo(AuthErrorCode.INCONSISTENCY.getStatus());
+        Assertions.assertThat(authException.getMessage()).isEqualTo(AuthErrorCode.INCONSISTENCY.getMessage());
+
+        BDDMockito.verify(jpaAuthRepository).findByUsername(signInReq.username());
+        BDDMockito.verify(passwordEncoder).matches(signInReq.password(),auth.getPassword());
     }
 }
