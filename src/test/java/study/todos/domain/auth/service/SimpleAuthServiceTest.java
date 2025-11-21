@@ -1,4 +1,4 @@
-package study.todos.domain.auth;
+package study.todos.domain.auth.service;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -21,7 +21,6 @@ import study.todos.domain.auth.entity.Auth;
 import study.todos.domain.auth.exception.AuthErrorCode;
 import study.todos.domain.auth.exception.AuthException;
 import study.todos.domain.auth.repository.JpaAuthRepository;
-import study.todos.domain.auth.service.SimpleAuthService;
 
 import java.util.Optional;
 

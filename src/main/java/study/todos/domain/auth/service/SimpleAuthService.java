@@ -29,15 +29,15 @@ public class SimpleAuthService {
     @Transactional
     public SimpleAuthRes signUp(SimpleAuthReq req) {
 
-        if(jpaAuthRepository.existsAuthsByUsername(req.getUsername())){
+        if(jpaAuthRepository.existsAuthsByUsername(req.username())){
             throw new AuthException(AuthErrorCode.DUPLICATION);
         }
 
-        String encodePassword = passwordEncoder.encode(req.getPassword());
-        Auth auth = new Auth(req.getUsername(), encodePassword);
+        String encodePassword = passwordEncoder.encode(req.password());
+        Auth auth = new Auth(req.username(), encodePassword);
         Auth savedAuth = jpaAuthRepository.save(auth);
 
-        SimpleMemberReq simpleMemberReq = new SimpleMemberReq(req.getMemberName(), req.getEmail());
+        SimpleMemberReq simpleMemberReq = new SimpleMemberReq(req.memberName(), req.email());
         simpleMemberService.saveMember(simpleMemberReq);
 
         return new SimpleAuthRes(savedAuth.getUsername(), "회원 가입 성공");
