@@ -1,5 +1,6 @@
 package study.todos.common;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,11 +22,17 @@ public class JwtUtilTest {
 
     @Test
     void createJWTAccessToken() {
-        String tester = jwtUtil.createJwtToken("tester");
+        String accessToken = jwtUtil.createAccessToken("tester");
+
+        Assertions.assertThat(jwtUtil.validateToken(accessToken)).isTrue();
+        Assertions.assertThat(jwtUtil.getUsername(accessToken)).isEqualTo("tester");
     }
 
     @Test
     void createJWTRefreshToken() {
-        String tester = jwtUtil.createRefreshToken("tester");
+        String refreshToken = jwtUtil.createRefreshToken("tester");
+
+        Assertions.assertThat(jwtUtil.validateToken(refreshToken)).isTrue();
+        Assertions.assertThat(jwtUtil.getUsername(refreshToken)).isEqualTo("tester");
     }
 }

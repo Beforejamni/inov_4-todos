@@ -1,12 +1,12 @@
 package study.todos.common.util;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.time.Duration;
@@ -29,29 +29,36 @@ public class JwtUtil {
     }
 
     @PostConstruct
-    public  void init() {
+    public void init() {
         key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createJwtToken(String username){
-        return Jwts.builder()
-                .setHeader(createHeader())
-                .claim("username" , username)
-                .setSubject(username)
-                .setIssuer("profile")
-                .signWith(key, SignatureAlgorithm.HS256)
-                .setExpiration(createExpiredDate(ACCESS_EXP))
-                .compact();
+    public String createAccessToken(String username){
+        return createToken(username, ACCESS_EXP);
     }
 
-    public  String createRefreshToken(String username) {
-        return Jwts.builder()
-                .setHeader(createHeader())
+    public String createRefreshToken(String username) {
+        return createToken(username, REFRESH_EXP);
+    }
+
+    public boolean validateToken(String token) {
+        try{
+            extractClaims(token);
+            return true;
+        }catch (ExpiredJwtException e) {
+            return false;
+        }catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private String createToken(String username, long expiredDate) {
+        return Jwts.builder().setHeader(createHeader())
                 .claim("username", username)
                 .setSubject(username)
                 .setIssuer("profile")
                 .signWith(key, SignatureAlgorithm.HS256)
-                .setExpiration(createExpiredDate(REFRESH_EXP))
+                .setExpiration(createExpiredDate(expiredDate))
                 .compact();
     }
 
@@ -68,5 +75,14 @@ public class JwtUtil {
     private Date createExpiredDate(long expiredDate) {
         Instant expiryDate = Instant.now().plus(Duration.ofMillis(expiredDate));
         return Date.from(expiryDate);
+    }
+
+    private static Claims extractClaims(String token) {
+        return Jwts.parserBuilder().setSigningKey(key)
+                .build().parseClaimsJws(token).getBody();
+    }
+
+    public String getUsername(String token) {
+        return extractClaims(token).getSubject();
     }
 }
